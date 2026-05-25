@@ -1,0 +1,28 @@
+.DS_Store
+.build/
+dist/
+DerivedData/
+*.xcuserstate
+*.swp
+
+# Local runtime data. Never commit worlds, logs, configs, or downloaded servers.
+JOIN_INFO.txt
+downloads/
+launchd/
+logs/
+server/
+serverconfig.txt
+tmp/
+tools/
+worlds/
+app/
+local-private/
+
+# Generated macOS bundles.
+*.app/
+*.dmg
+*.icns
+
+# Python/cache artifacts from local tooling.
+__pycache__/
+*.pyc
