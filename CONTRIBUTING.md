@@ -1,43 +1,54 @@
 # Contributing
 
-Thanks for improving Terrager.
+Thanks for improving Terrager. The project should stay focused: a native macOS manager for Terraria dedicated server worlds.
+
+## Development Rules
+
+| Rule | Why |
+| --- | --- |
+| Keep runtime files out of git | Worlds, logs, generated configs, and local launch agents are user data. |
+| Avoid hardcoded network details | Public endpoints and tunnel providers must be user-configured. |
+| Keep actions state-aware | Do not offer destructive or impossible actions for the selected server state. |
+| Prefer passive status reads | Avoid unnecessary active probes against running Terraria servers. |
+| Keep generated scripts generic | Scripts should be profile-driven and portable across Macs. |
 
 ## Local Setup
 
 1. Install Terraria on macOS, or have a compatible `TerrariaServer` binary available.
-2. Clone this repository.
-3. Build the app:
+2. Clone the repository.
+3. Build the app.
 
-```bash
+```sh
 scripts/build.sh
+open dist/Terrager.app
 ```
 
-4. Run the generated app from `dist/Terrager.app`.
+## Verification Checklist
 
-## Development Rules
-
-- Do not commit worlds, logs, launch agents, private configs, tunnel credentials, IP addresses, or machine-specific paths.
-- Keep runtime data under `~/Library/Application Support/Terrager`.
-- Keep UI actions state-aware: do not offer destructive or impossible actions for the selected server state.
-- Prefer passive status reads over active probes that connect to a running Terraria server.
-- Keep the app useful without a public tunnel provider.
-- Keep generated scripts generic and profile-driven.
+- [ ] `scripts/check.sh` passes.
+- [ ] `dist/Terrager.app` opens.
+- [ ] No worlds, logs, tunnel credentials, IP addresses, hostnames, or machine-specific paths are committed.
+- [ ] Profile changes still write runtime data under `~/Library/Application Support/Terrager`.
+- [ ] Server actions remain disabled when they would be unsafe for the current state.
+- [ ] Public endpoint behavior still works without bundling a tunnel provider.
 
 ## Pull Requests
 
-Before opening a pull request:
+Use concise conventional commits:
 
-```bash
-scripts/check.sh
+```text
+feat: add backup inventory controls
+fix: preserve profile runtime paths
+docs: refresh build guide
 ```
 
 Include:
 
-- What changed.
-- Why it changed.
-- How it was validated.
-- Any known limitations.
+- what changed
+- why it changed
+- how it was validated
+- known limitations
 
 ## Releases
 
-Releases are built by GitHub Actions when a `v*` tag is pushed. See [docs/BUILDING.md](docs/BUILDING.md).
+Releases are built by GitHub Actions. See [docs/BUILDING.md](docs/BUILDING.md).

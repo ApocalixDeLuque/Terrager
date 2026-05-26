@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Refresh README with badges, preview image, tables, and GitHub callouts.
+- Improve contribution, security, architecture, configuration, and build documentation.
+- Document the project boundary around worlds, logs, endpoints, tunnel credentials, and machine-specific values.
+
 ## 0.1.0
 
 - Initial open-source Terrager release.

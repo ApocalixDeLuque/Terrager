@@ -1,17 +1,17 @@
-# Building and Releasing
+# Building
 
 ## Local Build
 
-```bash
+```sh
 scripts/build.sh
 ```
 
-This creates:
+Outputs:
 
-```text
-dist/Terrager.app
-dist/Terrager.dmg
-```
+| Artifact | Purpose |
+| --- | --- |
+| `dist/Terrager.app` | App bundle. |
+| `dist/Terrager.dmg` | Compressed disk image. |
 
 The build script:
 
@@ -23,23 +23,35 @@ The build script:
 
 ## Validate
 
-```bash
+```sh
 scripts/check.sh
 ```
 
+The check script rebuilds, verifies the code signature, and verifies the DMG metadata.
+
 ## GitHub Release
 
-Push a version tag:
+Release by tag:
 
-```bash
-git tag v0.1.0
-git push origin v0.1.0
+```sh
+git tag v0.1.1
+git push origin v0.1.1
 ```
 
-GitHub Actions builds the DMG and publishes it to the release.
+Or trigger manually from GitHub Actions.
 
-## Signing and Notarization
+The workflow builds the DMG and attaches it to a GitHub release when the run is tag-based.
+
+## Signing
 
 The public build is ad-hoc signed. Users may need to right-click and choose **Open** on first launch.
 
-For a fully trusted macOS distribution, configure an Apple Developer ID certificate and notarization in the release workflow.
+For fully trusted macOS distribution, configure:
+
+- Apple Developer ID Application certificate
+- hardened runtime
+- notarization credentials
+- stapling after notarization
+
+> [!NOTE]
+> Terrager intentionally avoids bundling Terraria binaries, worlds, logs, tunnel config, or machine-specific values into release artifacts.

@@ -1,55 +1,55 @@
 # Architecture
 
-Terrager is a native macOS SwiftUI app built from a single Swift source file.
+Terrager is a native macOS SwiftUI app built around a small set of local runtime concepts.
 
-## App Layers
+## Layers
 
-- `ServerProfile`: persistent profile model for one Terraria world/server.
-- `RuntimeStatus`: passive runtime status collected from `screen`, `lsof`, process lists, logs, and generated join-info scripts.
-- `ServerViewModel`: app state, actions, persistence, and background refresh.
-- SwiftUI views: sidebar, overview, backups, logs, controls, and profile editor.
+| Layer | Responsibility |
+| --- | --- |
+| `ServerProfile` | Persistent profile model for one Terraria world/server. |
+| `RuntimeStatus` | Passive status from `screen`, `lsof`, process lists, logs, and generated join-info scripts. |
+| `ServerViewModel` | App state, persistence, validation, refresh, and server actions. |
+| SwiftUI views | Sidebar, overview, backups, logs, controls, and profile editor. |
 
 ## Runtime Directory
 
-Runtime files live outside the repository:
+Terrager writes runtime data outside the repository:
 
 ```text
 ~/Library/Application Support/Terrager/
 ```
 
-This keeps the open-source repository free of worlds, private configs, logs, and local machine state.
+This keeps the open-source project free of worlds, generated configs, logs, public endpoints, and local machine state.
 
 ## Generated Files
 
-Terrager creates:
+| Path | Purpose |
+| --- | --- |
+| `config/server-profiles.json` | Saved profiles. |
+| `config/rollback-settings.env` | Scheduled backup settings. |
+| `config/public-endpoint.env` | Optional user-created public endpoint display values. |
+| `serverconfigs/<profile>.serverconfig.txt` | Generated Terraria server config. |
+| `logs/<profile>-server.log` | Server output log. |
+| `scripts/*.sh` | Generated helper scripts. |
+| `worlds/*.wld` | World files. |
+| `worlds/backups/<profile>/*.wld` | Backup snapshots. |
 
-- `config/server-profiles.json`
-- `config/rollback-settings.env`
-- `config/public-endpoint.env` when users choose to add one manually
-- `serverconfigs/<profile>.serverconfig.txt`
-- `logs/<profile>-server.log`
-- `scripts/*.sh`
-- `worlds/*.wld`
-- `worlds/backups/<profile>/*.wld`
+## Process Model
 
-Generated scripts are intentionally generic and profile-driven.
-
-## Server Process Model
-
-Terrager starts Terraria servers in detached `screen` sessions named from the profile id:
+Terrager starts Terraria servers in detached `screen` sessions:
 
 ```text
 terraria-<profile-id>
 ```
 
-This allows the app to send safe console commands such as `save` and `exit` without keeping a terminal window open.
+The app uses that session name to send safe console commands such as `save` and `exit` without keeping a terminal window open.
 
 ## Public Networking
 
-Terrager does not bundle a tunnel provider. It reads optional public endpoint values from:
+Terrager does not bundle a tunnel provider. It only reads optional display values from:
 
 ```text
 ~/Library/Application Support/Terrager/config/public-endpoint.env
 ```
 
-This avoids shipping provider credentials, public IPs, or user-specific network details.
+That avoids shipping credentials, public IP addresses, public hostnames, router settings, or user-specific network details.

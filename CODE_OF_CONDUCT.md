@@ -1,7 +1,19 @@
 # Code of Conduct
 
-Be direct, respectful, and focused on making Terrager better.
+Terrager uses a practical contribution standard: keep discussion direct, respectful, and focused on the work.
 
-Harassment, personal attacks, spam, and intentionally disruptive behavior are not welcome in project spaces.
+## Expected
 
-Project maintainers may remove comments, close issues, or block participants who make collaboration harder for others.
+- Give concrete feedback.
+- Keep pull requests reviewable.
+- Respect the project scope.
+- Avoid committing private runtime data.
+
+## Not Accepted
+
+- Harassment or personal attacks.
+- Publishing private information.
+- Submitting worlds, credentials, IP addresses, hostnames, local paths, or device-specific assumptions.
+- Pushing unrelated scope into focused fixes.
+
+Maintainers may remove comments, issues, pull requests, or contributors that violate these expectations.

@@ -1,58 +1,61 @@
-# Terrager
+<div align="center">
+  <img src="Resources/terrager.png" alt="Terrager logo" width="104" height="104">
 
-Terrager is a macOS manager for hosting Terraria dedicated server worlds from a Mac.
+  # Terrager
 
-It provides a native SwiftUI interface for creating server profiles, starting and stopping worlds safely, saving, backing up, restoring from backups, importing `.wld` files, viewing logs, and showing join information for local network play.
+  Native macOS hosting manager for Terraria dedicated server worlds.
 
-![Terrager logo](Resources/terrager.png)
+  [![Release](https://img.shields.io/github/v/release/ApocalixDeLuque/Terrager?style=for-the-badge)](https://github.com/ApocalixDeLuque/Terrager/releases/latest)
+  [![Release Build](https://img.shields.io/github/actions/workflow/status/ApocalixDeLuque/Terrager/release.yml?style=for-the-badge&label=release)](https://github.com/ApocalixDeLuque/Terrager/actions/workflows/release.yml)
+  [![License](https://img.shields.io/github/license/ApocalixDeLuque/Terrager?style=for-the-badge)](LICENSE)
+  [![macOS](https://img.shields.io/badge/macOS-13%2B-111111?style=for-the-badge&logo=apple)](https://www.apple.com/macos/)
+  [![Swift](https://img.shields.io/badge/Swift-6-FA7343?style=for-the-badge&logo=swift&logoColor=white)](Sources/Terrager/Terrager.swift)
+  [![Terraria](https://img.shields.io/badge/Terraria-server%20manager-7A4C2A?style=for-the-badge)](https://terraria.org/)
 
-## Features
+  <br>
 
-- Create reusable Terraria server profiles.
-- Generate Terraria server config files from the app.
-- Start Terraria dedicated servers in detached `screen` sessions.
-- Save, backup, and safe-stop worlds from the UI.
-- Import existing `.wld` worlds.
-- List and manage backups, including disk usage.
-- Schedule automatic backup snapshots only while matching servers are running.
-- Show same-Wi-Fi join host and port.
-- Optionally show a user-configured public endpoint.
-- Store all runtime data under `~/Library/Application Support/Terrager`.
+  <img src="docs/assets/terrager-app.png" alt="Terrager app screenshot" width="760">
+</div>
+
+## What It Does
+
+Terrager gives Mac users a focused interface for hosting Terraria worlds without keeping terminal commands in their head. It manages profiles, launches the Terraria dedicated server, saves worlds, creates backups, restores backups, and shows join information for local network play.
+
+## Highlights
+
+| Area | Detail |
+| --- | --- |
+| Profiles | Reusable server profiles with world, port, player count, difficulty, seed, and executable path. |
+| Runtime | Starts Terraria servers in detached `screen` sessions. |
+| World safety | Save, backup, safe-stop, restore, import, and delete flows are state-aware. |
+| Backups | Manual backups plus scheduled snapshots only while matching servers are running. |
+| Networking | Shows same-Wi-Fi join details and optional user-configured public endpoint info. |
+| Open source hygiene | No bundled worlds, credentials, tunnel config, IP addresses, hostnames, or machine-specific paths. |
 
 ## Requirements
 
-- macOS 13 or newer.
-- Terraria installed from Steam, or a compatible `TerrariaServer` binary selected in the app.
-- The macOS `screen` command, included with macOS.
+| Requirement | Notes |
+| --- | --- |
+| macOS | macOS 13 or newer. |
+| Terraria server | Terraria from Steam or a compatible `TerrariaServer` binary selected in the app. |
+| `screen` | Included with macOS. |
 
-Terrager does not bundle Terraria, Terraria server binaries, worlds, private configs, public tunnel credentials, or IP addresses.
+> [!IMPORTANT]
+> Terrager does not bundle Terraria, Terraria server binaries, worlds, private configs, public tunnel credentials, or network addresses.
 
 ## Install
 
-Download `Terrager.dmg` from the GitHub Releases page, open it, and run `Terrager.app`.
+1. Download the latest `Terrager.dmg` from [Releases](https://github.com/ApocalixDeLuque/Terrager/releases/latest).
+2. Open the DMG.
+3. Move `Terrager.app` into Applications.
+4. Open Terrager.
 
-The current build is ad-hoc signed. If macOS warns that the app is from an unidentified developer, right-click the app, choose **Open**, and confirm. A future notarized release can remove that extra step.
-
-## Build Locally
-
-```bash
-scripts/build.sh
-```
-
-Outputs:
-
-- `dist/Terrager.app`
-- `dist/Terrager.dmg`
-
-Run validation:
-
-```bash
-scripts/check.sh
-```
+> [!NOTE]
+> The public build is ad-hoc signed. If macOS Gatekeeper blocks the first launch, open it from Finder with right click -> Open.
 
 ## Runtime Data
 
-Terrager creates and manages:
+Terrager stores user-generated data outside the repository:
 
 ```text
 ~/Library/Application Support/Terrager/
@@ -64,33 +67,52 @@ Terrager creates and manages:
   worlds/backups/
 ```
 
-These files are intentionally not part of the repository.
+This keeps the source tree clean and makes it safe to publish the repository.
 
 ## Public Access
 
-Terrager can display public join information, but it does not bundle or configure a public tunnel provider. Configure your own tunnel or port-forwarding solution and then create:
+Terrager can display public join information, but it does not configure or bundle a tunnel provider. If you use a tunnel or port-forwarding setup, create:
 
 ```text
 ~/Library/Application Support/Terrager/config/public-endpoint.env
 ```
 
-Example:
-
-```bash
-PUBLIC_HOST=example.example.net
-PUBLIC_PORT=12345
+```env
+PUBLIC_HOST=play.example.net
+PUBLIC_PORT=7777
 PUBLIC_LOCAL_PORT=7777
 ```
 
-If `PUBLIC_LOCAL_PORT` is omitted, the endpoint is shown for any selected profile.
+`PUBLIC_LOCAL_PORT` is optional. If omitted, the endpoint is shown for any selected profile.
+
+## Build
+
+```sh
+scripts/build.sh
+```
+
+Outputs:
+
+| Artifact | Purpose |
+| --- | --- |
+| `dist/Terrager.app` | macOS app bundle. |
+| `dist/Terrager.dmg` | User-facing disk image. |
+
+Run validation:
+
+```sh
+scripts/check.sh
+```
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Configuration](docs/CONFIGURATION.md)
-- [Building and releasing](docs/BUILDING.md)
-- [Contributing](CONTRIBUTING.md)
-- [Security policy](SECURITY.md)
+| Document | Purpose |
+| --- | --- |
+| [Architecture](docs/ARCHITECTURE.md) | App model, runtime layout, and process model. |
+| [Configuration](docs/CONFIGURATION.md) | Profiles, backups, endpoints, and LaunchAgents. |
+| [Building](docs/BUILDING.md) | Local builds, validation, releases, signing, and notarization. |
+| [Contributing](CONTRIBUTING.md) | Development rules and PR checklist. |
+| [Security](SECURITY.md) | Sensitive-data boundaries and reporting. |
 
 ## License
 

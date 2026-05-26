@@ -283,7 +283,7 @@ struct RuntimeStatus {
     var nice = ""
     var cpu = ""
     var memory = ""
-    var joinAddress = "127.0.0.1"
+    var joinAddress = "unavailable"
     var internetJoinAddress = "not configured"
     var worldSummary = "World file not found."
     var connections = "No active player TCP sessions detected."
@@ -438,7 +438,7 @@ if [[ -n "${iface:-}" ]]; then
   LAN_IP="$(ipconfig getifaddr "$iface" 2>/dev/null || true)"
 fi
 if [[ -z "$LAN_IP" ]]; then
-  LAN_IP="$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo 127.0.0.1)"
+  LAN_IP="unavailable"
 fi
 
 echo "LAN IP: $LAN_IP"
@@ -683,9 +683,9 @@ private func localIPAddress() -> String {
     if [[ -n "$iface" ]]; then
       ipconfig getifaddr "$iface" 2>/dev/null && exit 0
     fi
-    ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || ipconfig getifaddr en7 2>/dev/null || echo 127.0.0.1
+    echo unavailable
     """)
-    return result.output.isEmpty ? "127.0.0.1" : result.output
+    return result.output.isEmpty ? "unavailable" : result.output
 }
 
 private func joinInfoLine(_ title: String, output: String) -> String? {
