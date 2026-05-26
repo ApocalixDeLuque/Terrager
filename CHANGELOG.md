@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- Fixed New Server modal spacing and Launch Summary padding.
+- Forced Terrager's light custom theme to use readable text and control colors in macOS dark mode.
+
 ## 0.1.1
 
 - Refresh README with badges, preview image, tables, and GitHub callouts.

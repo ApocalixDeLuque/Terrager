@@ -19,6 +19,8 @@ private enum AppTheme {
     static let background = Color(red: 0.965, green: 0.968, blue: 0.985)
     static let panel = Color.white
     static let panelSubtle = Color(red: 0.982, green: 0.984, blue: 0.994)
+    static let text = Color(red: 0.078, green: 0.063, blue: 0.176)
+    static let muted = Color(red: 0.45, green: 0.45, blue: 0.53)
     static let sidebar = Color(red: 0.078, green: 0.063, blue: 0.176)
     static let sidebarMuted = Color(red: 0.78, green: 0.76, blue: 0.92)
     static let primary = Color(red: 0.459, green: 0.298, blue: 0.463)
@@ -29,6 +31,11 @@ private enum AppTheme {
     static let success = Color(red: 0.22, green: 0.68, blue: 0.38)
     static let danger = Color(red: 0.82, green: 0.19, blue: 0.24)
     static let warning = Color(red: 0.78, green: 0.50, blue: 0.13)
+}
+
+private enum AppKitTheme {
+    static let inputText = NSColor(srgbRed: 0.078, green: 0.063, blue: 0.176, alpha: 1)
+    static let placeholderText = NSColor(srgbRed: 0.46, green: 0.46, blue: 0.52, alpha: 1)
 }
 
 struct CommandResult {
@@ -1722,6 +1729,10 @@ final class ServerViewModel: ObservableObject {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.appearance = NSAppearance(named: .aqua)
+    }
+
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if UserDefaults.standard.object(forKey: saveOnCloseKey) as? Bool ?? true {
             let screenList = Shell.run("screen -list 2>/dev/null || true").output
@@ -1976,6 +1987,7 @@ struct EditorSection<Content: View>: View {
                 .foregroundStyle(AppTheme.primaryDeep)
             content
         }
+        .foregroundStyle(AppTheme.text)
         .padding(14)
         .background(AppTheme.panel)
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -1994,7 +2006,9 @@ struct PlainTextField: NSViewRepresentable {
 
     func makeNSView(context: Context) -> NSTextField {
         let textField = NSTextField(string: text)
-        textField.placeholderString = placeholder
+        textField.appearance = NSAppearance(named: .aqua)
+        textField.textColor = AppKitTheme.inputText
+        textField.placeholderAttributedString = placeholderText(placeholder)
         textField.isBordered = false
         textField.isBezeled = false
         textField.drawsBackground = false
@@ -2012,12 +2026,18 @@ struct PlainTextField: NSViewRepresentable {
         if nsView.stringValue != text {
             nsView.stringValue = text
         }
-        nsView.placeholderString = placeholder
+        nsView.appearance = NSAppearance(named: .aqua)
+        nsView.textColor = AppKitTheme.inputText
+        nsView.placeholderAttributedString = placeholderText(placeholder)
         nsView.focusRingType = .none
         nsView.cell?.focusRingType = .none
         nsView.font = monospaced
             ? NSFont.monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
             : NSFont.systemFont(ofSize: NSFont.systemFontSize)
+    }
+
+    private func placeholderText(_ value: String) -> NSAttributedString {
+        NSAttributedString(string: value, attributes: [.foregroundColor: AppKitTheme.placeholderText])
     }
 
     final class Coordinator: NSObject, NSTextFieldDelegate {
@@ -2048,19 +2068,68 @@ struct LabeledInput: View {
             HStack(alignment: .firstTextBaseline) {
                 Text(title)
                     .font(.subheadline.weight(.medium))
+                    .foregroundColor(AppTheme.text)
                 if !help.isEmpty {
                     Text(help)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(AppTheme.muted)
                 }
             }
-            PlainTextField(placeholder: placeholder, text: $text, monospaced: monospaced)
-                .padding(.horizontal, 10)
-                .frame(height: 34)
-                .background(AppTheme.panelSubtle)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(AppTheme.border))
+            ZStack(alignment: .leading) {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .font(monospaced ? .system(.body, design: .monospaced) : .body)
+                        .foregroundColor(AppTheme.muted.opacity(0.78))
+                        .padding(.horizontal, 10)
+                        .lineLimit(1)
+                        .allowsHitTesting(false)
+                }
+
+                PlainTextField(placeholder: "", text: $text, monospaced: monospaced)
+                    .padding(.horizontal, 10)
+            }
+            .frame(height: 34)
+            .background(AppTheme.panelSubtle)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(AppTheme.border))
         }
+    }
+}
+
+struct SegmentedChoice<Option: Hashable>: View {
+    let options: [Option]
+    @Binding var selection: Option
+    let label: (Option) -> String
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(Array(options.enumerated()), id: \.element) { index, option in
+                Button {
+                    selection = option
+                } label: {
+                    Text(label(option))
+                        .font(.subheadline.weight(selection == option ? .semibold : .regular))
+                        .foregroundColor(selection == option ? Color.white : AppTheme.text)
+                        .lineLimit(1)
+                        .frame(minWidth: 74)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(selection == option ? AppTheme.primary : Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                if index < options.count - 1 {
+                    Rectangle()
+                        .fill(AppTheme.border)
+                        .frame(width: 1, height: 18)
+                        .padding(.horizontal, 2)
+                }
+            }
+        }
+        .padding(3)
+        .background(AppTheme.panelSubtle)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
 
@@ -2102,9 +2171,10 @@ struct ProfileEditorView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
                         .font(.largeTitle.weight(.semibold))
+                        .foregroundColor(AppTheme.text)
                     Text("Create a reusable Terraria profile. The world is not generated until you press Start.")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(AppTheme.muted)
                 }
 
                 Spacer()
@@ -2114,7 +2184,7 @@ struct ProfileEditorView: View {
 
             Divider()
 
-            HStack(alignment: .top, spacing: 18) {
+            HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 14) {
                     Text("Launch Summary")
                         .font(.headline)
@@ -2131,7 +2201,7 @@ struct ProfileEditorView: View {
 
                     Text("Terrager creates reusable profiles without generating worlds until you start them.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(AppTheme.sidebarMuted.opacity(0.78))
                         .fixedSize(horizontal: false, vertical: true)
 
                     if !validationMessages.isEmpty {
@@ -2148,8 +2218,9 @@ struct ProfileEditorView: View {
                         }
                     }
                 }
-                .padding(16)
-                .frame(width: 230, alignment: .topLeading)
+                .padding(.vertical, 20)
+                .padding(.horizontal, 20)
+                .frame(width: 236, alignment: .topLeading)
                 .background(AppTheme.primaryDeep)
                 .foregroundStyle(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -2168,34 +2239,22 @@ struct ProfileEditorView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Size")
                                     .font(.subheadline.weight(.medium))
-                                Picker("Size", selection: $draft.size) {
-                                    ForEach(WorldSize.allCases) { size in
-                                        Text(size.label).tag(size)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
+                                    .foregroundColor(AppTheme.text)
+                                SegmentedChoice(options: WorldSize.allCases, selection: $draft.size) { $0.label }
                             }
 
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Difficulty")
                                     .font(.subheadline.weight(.medium))
-                                Picker("Difficulty", selection: $draft.difficulty) {
-                                    ForEach(WorldDifficulty.allCases) { difficulty in
-                                        Text(difficulty.label).tag(difficulty)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
+                                    .foregroundColor(AppTheme.text)
+                                SegmentedChoice(options: WorldDifficulty.allCases, selection: $draft.difficulty) { $0.label }
                             }
 
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("World Evil")
                                     .font(.subheadline.weight(.medium))
-                                Picker("World Evil", selection: $draft.evil) {
-                                    ForEach(WorldEvil.allCases) { evil in
-                                        Text(evil.label).tag(evil)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
+                                    .foregroundColor(AppTheme.text)
+                                SegmentedChoice(options: WorldEvil.allCases, selection: $draft.evil) { $0.label }
                             }
                         }
 
@@ -2217,10 +2276,16 @@ struct ProfileEditorView: View {
                             }
                         }
                     }
-                    .padding(18)
+                    .padding(.top, 0)
+                    .padding(.leading, 8)
+                    .padding(.trailing, 18)
+                    .padding(.bottom, 18)
                 }
                 .frame(maxHeight: 560)
             }
+            .padding(.top, 18)
+            .padding(.leading, 24)
+            .padding(.trailing, 18)
             .background(AppTheme.background)
 
             Divider()
@@ -2237,6 +2302,7 @@ struct ProfileEditorView: View {
             .background(AppTheme.panel)
         }
         .tint(AppTheme.primary)
+        .environment(\.colorScheme, .light)
         .frame(width: 920, height: 720)
         .onAppear {
             DispatchQueue.main.async {
@@ -2287,6 +2353,7 @@ struct ContentView: View {
         .frame(minWidth: 1060, minHeight: 720)
         .background(AppTheme.background)
         .tint(AppTheme.primary)
+        .environment(\.colorScheme, .light)
         .onAppear {
             viewModel.refresh()
         }
@@ -2712,6 +2779,8 @@ struct TerragerApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.colorScheme, .light)
+                .preferredColorScheme(.light)
         }
         .windowStyle(.titleBar)
         .commands {
