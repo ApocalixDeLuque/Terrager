@@ -15,6 +15,17 @@ private let scriptsDir = runtimeDir + "/scripts"
 private let installRollbackScript = scriptsDir + "/install-rollback-scheduler.sh"
 private let joinInfoScript = scriptsDir + "/join-info.sh"
 
+private func displayPath(_ path: String) -> String {
+    let home = FileManager.default.homeDirectoryForCurrentUser.path
+    if path == home {
+        return "~"
+    }
+    if path.hasPrefix(home + "/") {
+        return "~" + path.dropFirst(home.count)
+    }
+    return path
+}
+
 private enum AppTheme {
     static let background = Color(red: 0.965, green: 0.968, blue: 0.985)
     static let panel = Color.white
@@ -403,6 +414,7 @@ private func ensureRuntimeFolders() {
         runtimeDir + "/config",
         runtimeDir + "/logs",
         runtimeDir + "/serverconfigs",
+        scriptsDir,
         runtimeDir + "/worlds",
         runtimeDir + "/worlds/backups"
     ]
@@ -2459,7 +2471,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(viewModel.selectedProfile?.name ?? appName)
                     .font(.title2.weight(.semibold))
-                Text(runtimeDir)
+                Text(displayPath(runtimeDir))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .textSelection(.enabled)

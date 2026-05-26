@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+- Ensure the Terrager runtime creates its `scripts/` folder before installing helper scripts.
+- Abbreviate the home directory in the app header path for cleaner public screenshots.
+- Refresh the README app screenshot.
+
 ## 0.1.2
 
 - Fixed New Server modal spacing and Launch Summary padding.
